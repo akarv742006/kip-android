@@ -1,0 +1,33 @@
+{
+  "entries": [
+    { "key": "app_name", "value": "Kingmakers of Indian Politics" },
+    { "key": "ui_play", "value": "Start Game" },
+    { "key": "ui_settings", "value": "Settings" },
+    { "key": "ui_exit", "value": "Exit" },
+    { "key": "ui_language", "value": "Language" },
+    { "key": "ui_english", "value": "English" },
+    { "key": "ui_tamil", "value": "தமிழ் (Tamil)" },
+    { "key": "ui_pause", "value": "Game Paused" },
+    { "key": "ui_resume", "value": "Resume" },
+    { "key": "ui_save", "value": "Save Game" },
+    { "key": "ui_load", "value": "Load Game" },
+    { "key": "rep_public_trust", "value": "Public Trust" },
+    { "key": "rep_integrity", "value": "Integrity" },
+    { "key": "rep_leadership", "value": "Leadership" },
+    { "key": "rep_party_loyalty", "value": "Party Loyalty" },
+    { "key": "rep_media_image", "value": "Media Image" },
+    { "key": "res_money", "value": "Personal Money" },
+    { "key": "res_funds", "value": "Campaign Funds" },
+    { "key": "res_party", "value": "Party Capacity" },
+    { "key": "res_influence", "value": "Influence" },
+    { "key": "mission_civic_title", "value": "Community Water Crisis" },
+    { "key": "mission_civic_desc", "value": "Address the local water supply failure in the district ward." },
+    { "key": "dialogue_interact_prompt", "value": "Press [E] or tap to Talk" },
+    { "key": "vehicle_enter_prompt", "value": "Press [F] or tap to Drive" },
+    { "key": "election_title", "value": "Assembly Election Results" },
+    { "key": "election_status_counting", "value": "Counting Votes..." },
+    { "key": "election_declared", "value": "ELECTION RESULT DECLARED" },
+    { "key": "campaign_rally_title", "value": "Organize Political Rally" },
+    { "key": "campaign_door_to_door", "value": "Door-to-Door Outreach" }
+  ]
+}

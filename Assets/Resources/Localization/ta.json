@@ -1,0 +1,33 @@
+{
+  "entries": [
+    { "key": "app_name", "value": "இந்திய அரசியலின் கிங்மேக்கர்கள்" },
+    { "key": "ui_play", "value": "விளையாட்டைத் தொடங்கு" },
+    { "key": "ui_settings", "value": "அமைப்புகள்" },
+    { "key": "ui_exit", "value": "வெளியேறு" },
+    { "key": "ui_language", "value": "மொழி" },
+    { "key": "ui_english", "value": "English" },
+    { "key": "ui_tamil", "value": "தமிழ்" },
+    { "key": "ui_pause", "value": "விளையாட்டு இடைநிறுத்தப்பட்டது" },
+    { "key": "ui_resume", "value": "தொடர்க" },
+    { "key": "ui_save", "value": "சேமிக்க" },
+    { "key": "ui_load", "value": "ஏற்றுக" },
+    { "key": "rep_public_trust", "value": "பொதுமக்கள் நம்பிக்கை" },
+    { "key": "rep_integrity", "value": "நேர்மை" },
+    { "key": "rep_leadership", "value": "தலைமைப்பண்பு" },
+    { "key": "rep_party_loyalty", "value": "கட்சி விசுவாசம்" },
+    { "key": "rep_media_image", "value": "ஊடகப் பிம்பம்" },
+    { "key": "res_money", "value": "சொந்தப் பணம்" },
+    { "key": "res_funds", "value": "தேர்தல் நிதி" },
+    { "key": "res_party", "value": "கட்சி பலம்" },
+    { "key": "res_influence", "value": "செல்வாக்கு" },
+    { "key": "mission_civic_title", "value": "குடிநீர் தட்டுப்பாடு பிரச்சினை" },
+    { "key": "mission_civic_desc", "value": "வார்டு பகுதியில் உள்ள குடிநீர் விநியோகப் பிரச்சினையைத் தீர்க்கவும்." },
+    { "key": "dialogue_interact_prompt", "value": "பேச தொடவும் / [E] அழுத்தவும்" },
+    { "key": "vehicle_enter_prompt", "value": "வாகனம் ஓட்ட அழுத்தவும் / [F]" },
+    { "key": "election_title", "value": "சட்டமன்றத் தேர்தல் முடிவுகள்" },
+    { "key": "election_status_counting", "value": "வாக்குகள் எண்ணப்படுகின்றன..." },
+    { "key": "election_declared", "value": "தேர்தல் முடிவுகள் அறிவிக்கப்பட்டன" },
+    { "key": "campaign_rally_title", "value": "பொதுக்கூட்டம் ஏற்பாடு செய்" },
+    { "key": "campaign_door_to_door", "value": "வீடு வீடாக பிரச்சாரம்" }
+  ]
+}

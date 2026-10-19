@@ -1,0 +1,14 @@
+{
+    "name": "KingmakersOfIndianPolitics",
+    "rootNamespace": "Kingmakers",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
