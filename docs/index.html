@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Kingmakers of Indian Politics - Level 1: The Water Crisis</title>
+  <style>
+    :root {
+      --bg-dark: #070d18;
+      --bg-card: rgba(13, 23, 42, 0.90);
+      --bg-card-hover: rgba(22, 38, 70, 0.95);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-glow: rgba(56, 189, 248, 0.35);
+      --gold-primary: #f59e0b;
+      --gold-light: #fbbf24;
+      --blue-accent: #0284c7;
+      --blue-bright: #38bdf8;
+      --green-accent: #10b981;
+      --purple-accent: #8b5cf6;
+      --red-accent: #ef4444;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg-dark);
+      color: var(--text-main);
+    }
+
+    /* 3D WebGL Canvas */
+    #canvas-container {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+
+    /* Overlay Screens */
+    .screen-view {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 20;
+      display: none;
+      background: radial-gradient(circle at 50% 30%, rgba(15, 25, 48, 0.95) 0%, rgba(4, 8, 18, 0.98) 100%);
+      backdrop-filter: blur(14px);
+      overflow-y: auto;
+      padding: 24px;
+      animation: fadeIn 0.25s ease forwards;
+    }
+    .screen-view.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.99); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Bottom Master Dock */
+    #global-dock {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      display: flex;
+      gap: 6px;
+      background: rgba(10, 18, 34, 0.92);
+      border: 1px solid var(--border-glow);
+      border-radius: 40px;
+      padding: 6px 14px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.85);
+      max-width: 95vw;
+      overflow-x: auto;
+    }
+    .dock-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 7px 13px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .dock-btn:hover {
+      color: #fff;
+      background: rgba(255,255,255,0.06);
+    }
+    .dock-btn.active {
+      color: #000;
+      background: linear-gradient(135deg, var(--gold-light), var(--gold-primary));
+      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+    }
+
+    /* ========================================================
+       1. MAIN MENU SCREEN
+       ======================================================== */
+    #screen-main-menu {
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      padding-left: clamp(30px, 8vw, 100px);
+      background: linear-gradient(90deg, rgba(4, 9, 20, 0.95) 0%, rgba(7, 14, 28, 0.75) 50%, rgba(4, 8, 16, 0.95) 100%),
+                  radial-gradient(ellipse at 70% 50%, rgba(245, 158, 11, 0.15) 0%, transparent 60%);
+    }
+    .menu-brand-box {
+      margin-bottom: 24px;
+    }
+    .crown-icon {
+      font-size: 32px;
+      color: var(--gold-primary);
+      margin-bottom: -4px;
+      display: inline-block;
+    }
+    .main-logo-text {
+      font-size: clamp(32px, 5.5vw, 56px);
+      font-weight: 900;
+      letter-spacing: 2px;
+      line-height: 1.05;
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, var(--gold-light) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-transform: uppercase;
+    }
+    .main-tagline {
+      font-size: 13px;
+      letter-spacing: 4px;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin-top: 6px;
+      text-transform: uppercase;
+    }
+    .menu-button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 250px;
+      margin-bottom: 30px;
+    }
+    .btn-menu {
+      background: rgba(15, 25, 48, 0.85);
+      border: 1px solid var(--border-subtle);
+      color: #fff;
+      padding: 13px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.2s;
+    }
+    .btn-menu:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--blue-bright);
+      transform: translateX(6px);
+    }
+    .btn-menu.primary {
+      background: linear-gradient(135deg, var(--gold-light), var(--gold-primary));
+      color: #000;
+      border: none;
+      box-shadow: 0 6px 25px rgba(245, 158, 11, 0.4);
+    }
+    .menu-quote {
+      font-style: italic;
+      color: var(--text-muted);
+      font-size: 14px;
+      border-left: 2px solid var(--gold-primary);
+      padding-left: 12px;
+      max-width: 320px;
+    }
+
+    /* ========================================================
+       2. IN-GAME AAA HUD (Matching Screenshot Top-Right)
+       ======================================================== */
+    #hud-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 14px 18px;
+    }
+
+    .hud-top-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      pointer-events: auto;
+    }
+    .radar-circle {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: rgba(7, 13, 24, 0.9);
+      border: 2px solid rgba(56, 189, 248, 0.5);
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .radar-inner-grid {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background-image: radial-gradient(circle, rgba(56, 189, 248, 0.2) 1px, transparent 1px);
+      background-size: 12px 12px;
+      position: relative;
+    }
+    .radar-player-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--blue-bright);
+      border-radius: 50%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 8px #38bdf8;
+    }
+    .radar-obj-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--gold-light);
+      border-radius: 50%;
+      position: absolute;
+      top: 35%;
+      left: 60%;
+      box-shadow: 0 0 8px #f59e0b;
+      animation: pulse 1s infinite alternate;
+    }
+    @keyframes pulse { from { opacity: 0.4; } to { opacity: 1; } }
+
+    .radar-loc-chip {
+      background: rgba(13, 23, 42, 0.9);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--blue-bright);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .hud-top-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      pointer-events: auto;
+    }
+    .hud-stat-pill {
+      background: rgba(13, 23, 42, 0.9);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .pill-cash {
+      color: var(--green-accent);
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+    .pill-level {
+      color: var(--gold-light);
+      border-color: rgba(245, 158, 11, 0.3);
+    }
+
+    /* Current Mission / Objective Banner */
+    .hud-mission-banner {
+      position: absolute;
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(13, 23, 42, 0.92);
+      border: 1.5px solid rgba(245, 158, 11, 0.5);
+      border-radius: 12px;
+      padding: 8px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 6px 25px rgba(0,0,0,0.6);
+      pointer-events: auto;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .hud-mission-banner:hover {
+      border-color: var(--gold-light);
+      background: rgba(22, 38, 70, 0.95);
+    }
+    .mission-badge-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--gold-light);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 14px;
+    }
+    .mission-texts {
+      display: flex;
+      flex-direction: column;
+    }
+    .mission-label {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--gold-light);
+    }
+    .mission-goal {
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    /* Context Prompt */
+    #action-prompt {
+      position: absolute;
+      top: 60%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(13, 23, 42, 0.94);
+      border: 2px solid var(--blue-bright);
+      border-radius: 30px;
+      padding: 10px 24px;
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--blue-bright);
+      box-shadow: 0 0 25px rgba(56, 189, 248, 0.4);
+      display: none;
+      pointer-events: auto;
+      cursor: pointer;
+    }
+
+    /* Driving Gauge Overlay */
+    #driving-hud {
+      position: absolute;
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.92);
+      border: 1px solid #ef4444;
+      border-radius: 30px;
+      padding: 8px 24px;
+      display: none;
+      align-items: center;
+      gap: 16px;
+      pointer-events: auto;
+      z-index: 55;
+    }
+    .speed-gauge {
+      font-size: 16px;
+      font-weight: 800;
+      color: #ef4444;
+    }
+
+    /* Bottom Row Controls */
+    .hud-bottom-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      width: 100%;
+      padding-bottom: 45px;
+    }
+    .hud-chat-box {
+      width: 290px;
+      background: rgba(7, 13, 24, 0.88);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 10px;
+      font-size: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      pointer-events: auto;
+    }
+    .chat-row {
+      display: flex;
+      gap: 6px;
+      line-height: 1.3;
+    }
+    .chat-user {
+      font-weight: 800;
+      color: var(--blue-bright);
+    }
+    .chat-msg {
+      color: var(--text-muted);
+    }
+
+    /* Virtual Joystick & Right Action Column */
+    .joystick-zone {
+      width: 110px;
+      height: 110px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      border-radius: 50%;
+      position: relative;
+      pointer-events: auto;
+      touch-action: none;
+    }
+    .joystick-knob {
+      width: 44px;
+      height: 44px;
+      background: rgba(56, 189, 248, 0.75);
+      border: 2px solid #fff;
+      border-radius: 50%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .hud-action-column {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      pointer-events: auto;
+    }
+    .hud-action-round {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: rgba(13, 23, 42, 0.92);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 20px;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+      transition: all 0.15s;
+    }
+    .hud-action-round:active {
+      transform: scale(0.92);
+      background: var(--blue-accent);
+      border-color: var(--blue-bright);
+    }
+
+    /* Dialogue Modal */
+    #dialogue-modal {
+      position: absolute;
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 92%;
+      max-width: 720px;
+      background: rgba(13, 23, 42, 0.96);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 16px;
+      padding: 22px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+      pointer-events: auto;
+      z-index: 60;
+    }
+    .dialogue-speaker {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--gold-light);
+      letter-spacing: 0.5px;
+    }
+    .dialogue-text {
+      font-size: 15px;
+      line-height: 1.55;
+      color: #e2e8f0;
+    }
+    .dialogue-options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .dialogue-opt {
+      background: rgba(30, 41, 59, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      padding: 12px 16px;
+      color: #cbd5e1;
+      font-size: 14px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s;
+    }
+    .dialogue-opt:hover {
+      background: #1e3a8a;
+      border-color: var(--blue-bright);
+      color: #fff;
+      transform: translateX(5px);
+    }
+
+    /* Level Complete Victory Modal */
+    #level-complete-modal {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90%;
+      max-width: 540px;
+      background: rgba(13, 23, 42, 0.98);
+      border: 2px solid var(--green-accent);
+      border-radius: 24px;
+      padding: 30px;
+      box-shadow: 0 0 60px rgba(16, 185, 129, 0.4);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      text-align: center;
+      pointer-events: auto;
+      z-index: 100;
+    }
+
+    /* Shared Card & Dashboards */
+    .grid-dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 18px;
+      width: 100%;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding-bottom: 70px;
+    }
+    .screen-header-title {
+      font-size: 22px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+      color: #fff;
+    }
+    .dash-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .card-top-title {
+      font-size: 14px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .action-row-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(18, 30, 54, 0.7);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 10px 14px;
+      gap: 12px;
+    }
+    .action-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .action-icon-circle {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.08);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 16px;
+    }
+    .action-info h4 {
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .action-info p {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .btn-action-trigger {
+      background: var(--blue-accent);
+      border: none;
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-action-trigger:hover {
+      background: #0284c7;
+    }
+    .circle-progress-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 0;
+    }
+    .meter-val-large {
+      font-size: 32px;
+      font-weight: 900;
+      color: var(--blue-bright);
+    }
+    .meter-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .election-map-visual {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+    .tn-map-svg {
+      width: 140px;
+      height: 140px;
+      filter: drop-shadow(0 6px 15px rgba(0,0,0,0.6));
+    }
+    .election-legend-list {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .legend-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .party-tag {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .party-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .rep-bar-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+    .rep-bar-label-line {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .rep-track {
+      width: 100%;
+      height: 7px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .rep-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    if (typeof THREE === 'undefined') {
+      document.write('<script src="https://unpkg.com/three@0.128.0/build/three.min.js"><\/script>');
+    }
+  </script>
+</head>
+<body>
+  <!-- 3D Canvas Background -->
+  <div id="canvas-container"></div>
+
+  <!-- SCREEN 1: MAIN MENU -->
+  <div class="screen-view active" id="screen-main-menu">
+    <div class="menu-brand-box">
+      <div class="crown-icon">👑</div>
+      <h1 class="main-logo-text">KINGMAKERS<br>OF INDIAN POLITICS</h1>
+      <div class="main-tagline">BUILD • GOVERN • LEAD</div>
+    </div>
+
+    <div class="menu-button-group">
+      <button class="btn-menu primary" id="btn-continue-game">▶ Continue (Level 1)</button>
+      <button class="btn-menu" id="btn-open-campaign">📢 Campaign Strategy</button>
+      <button class="btn-menu" id="btn-open-election">🗳️ State Election 2027</button>
+      <button class="btn-menu" id="btn-open-char">👤 Profile & Reputation</button>
+      <button class="btn-menu" id="btn-open-settings">⚙️ Settings</button>
+    </div>
+
+    <div class="menu-quote">
+      "Power is not given, it is earned."
+    </div>
+  </div>
+
+  <!-- SCREEN 2: IN-GAME AAA HUD (Matching Design Screenshot) -->
+  <div id="hud-overlay" style="display: none;">
+    <!-- Top Left Radar & Location -->
+    <div class="hud-top-left">
+      <div class="radar-circle">
+        <div class="radar-inner-grid">
+          <div class="radar-player-dot"></div>
+          <div class="radar-obj-dot" id="radar-obj-blip"></div>
+        </div>
+      </div>
+      <div class="radar-loc-chip">📍 Chennai Ward 12</div>
+    </div>
+
+    <!-- Center Mission Banner (Level 1 Tasks Tracker) -->
+    <div class="hud-mission-banner" id="mission-banner" onclick="handleCurrentTask()">
+      <div class="mission-badge-icon">🎯</div>
+      <div class="mission-texts">
+        <span class="mission-label">Level 1 Objective</span>
+        <span class="mission-goal" id="mission-goal-text">Task 1: Meet Ward Member Karuppasamy</span>
+      </div>
+    </div>
+
+    <!-- Top Right Cash & Level -->
+    <div class="hud-top-right">
+      <div class="hud-stat-pill pill-cash" id="hud-cash-val">₹ 2,45,000</div>
+      <div class="hud-stat-pill pill-level">Level 3</div>
+    </div>
+
+    <!-- Action Prompt Overlay -->
+    <div id="action-prompt" onclick="handleInteraction()">[E] Tap to Interact</div>
+
+    <!-- Driving Gauge Overlay -->
+    <div id="driving-hud">
+      <span class="speed-gauge" id="speed-gauge">🚗 0 KM/H</span>
+      <span style="font-size: 13px; color: #94a3b8;">Use WASD / Joystick to Drive</span>
+      <button class="btn-action-trigger" style="background: #ef4444;" onclick="exitCar()">Exit Car</button>
+    </div>
+
+    <!-- Bottom Controls & Social Chat -->
+    <div class="hud-bottom-row">
+      <!-- Mini Multiplayer Chat Box -->
+      <div class="hud-chat-box">
+        <div class="chat-row"><span class="chat-user">Player2:</span><span class="chat-msg">Let's meet at the rally point.</span></div>
+        <div class="chat-row"><span class="chat-user">Player4:</span><span class="chat-msg">I will join in 5 mins.</span></div>
+        <div class="chat-row"><span class="chat-user" style="color: #f59e0b;">System:</span><span class="chat-msg" id="sys-event-msg">Task 1 Active. Walk forward or tap prompt.</span></div>
+      </div>
+
+      <!-- Virtual Joystick for Touch / Mouse Drag -->
+      <div class="joystick-zone" id="joystick-zone">
+        <div class="joystick-knob" id="joystick-knob"></div>
+      </div>
+
+      <!-- Action Touch Buttons (Matches Reference Screenshot) -->
+      <div class="hud-action-column">
+        <div class="hud-action-round" id="act-talk" title="Talk / Interact" onclick="handleInteraction()">🗣️</div>
+        <div class="hud-action-round" id="act-sprint" title="Sprint">🏃</div>
+        <div class="hud-action-round" id="act-car" title="Drive Vehicle" onclick="toggleCarDrive()">🚗</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dialogue Box Modal -->
+  <div id="dialogue-modal">
+    <div class="dialogue-speaker" id="dialogue-speaker">Ward Member Karuppasamy</div>
+    <div class="dialogue-text" id="dialogue-text">...</div>
+    <div class="dialogue-options" id="dialogue-options"></div>
+  </div>
+
+  <!-- Level Complete Victory Modal -->
+  <div id="level-complete-modal">
+    <div style="font-size: 32px; color: var(--gold-light);">★★★</div>
+    <h2 style="color: var(--green-accent); font-size: 24px; font-weight: 900;">LEVEL 1 COMPLETED!</h2>
+    <p style="color: #cbd5e1; font-size: 14px; line-height: 1.5;">
+      You exposed the Tanker Mafia, mobilized Chennai Ward 12 residents, and secured a historic landslide in the Special Bye-Election!
+    </p>
+    <div style="background: rgba(18, 30, 54, 0.8); border-radius: 12px; padding: 14px 20px; width: 100%; display: flex; justify-content: space-around;">
+      <div><span style="color: var(--text-muted); font-size: 11px;">PUBLIC TRUST</span><strong style="color: var(--blue-bright); font-size: 16px;">82%</strong></div>
+      <div><span style="color: var(--text-muted); font-size: 11px;">VOTES WON</span><strong style="color: var(--green-accent); font-size: 16px;">58,400</strong></div>
+      <div><span style="color: var(--text-muted); font-size: 11px;">NEXT LEVEL</span><strong style="color: var(--gold-light); font-size: 16px;">Ward Councilor</strong></div>
+    </div>
+    <button class="btn-menu primary" style="width: 100%; justify-content: center;" onclick="resetLevel1()">Replay / Continue Career ▶</button>
+  </div>
+
+  <!-- SCREEN 3: CAMPAIGN MANAGEMENT -->
+  <div class="screen-view" id="screen-campaign">
+    <div style="width: 100%; max-width: 1280px; margin: 0 auto;">
+      <h2 class="screen-header-title">📢 Campaign Management</h2>
+      <div class="grid-dashboard">
+        <div class="dash-card">
+          <div class="card-top-title"><span>Campaign Actions</span><span>Budget</span></div>
+          <div class="action-row-item">
+            <div class="action-left">
+              <div class="action-icon-circle" style="color: #ef4444;">🚩</div>
+              <div class="action-info"><h4>Political Rally</h4><p>Increase visibility and public support</p></div>
+            </div>
+            <span style="color: var(--gold-light); font-size: 12px; font-weight: 700;">₹ 50,000</span>
+            <button class="btn-action-trigger" onclick="runCampaignAction('Rally', 50000, 8)">Launch</button>
+          </div>
+          <div class="action-row-item">
+            <div class="action-left">
+              <div class="action-icon-circle" style="color: #38bdf8;">🤝</div>
+              <div class="action-info"><h4>Door to Door</h4><p>Meet citizens and solve issues</p></div>
+            </div>
+            <span style="color: var(--gold-light); font-size: 12px; font-weight: 700;">₹ 20,000</span>
+            <button class="btn-action-trigger" onclick="runCampaignAction('Door to Door', 20000, 5)">Go</button>
+          </div>
+        </div>
+        <div class="dash-card">
+          <div class="card-top-title"><span>Campaign Progress</span><span>Live Index</span></div>
+          <div class="circle-progress-wrapper">
+            <div class="meter-val-large" id="camp-support-val">62%</div>
+            <div class="meter-sub">Public Support</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 4: ELECTION 2027 -->
+  <div class="screen-view" id="screen-election">
+    <div style="width: 100%; max-width: 1280px; margin: 0 auto;">
+      <h2 class="screen-header-title">
+        <span>State Election - 2027</span>
+        <span style="font-size: 11px; background: #ef4444; color: #fff; padding: 2px 8px; border-radius: 4px;">🔴 LIVE</span>
+      </h2>
+      <div class="grid-dashboard">
+        <div class="dash-card">
+          <div class="card-top-title"><span>Constituency: Tiruvallur</span><span>Counting in Progress</span></div>
+          <div class="election-map-visual">
+            <svg class="tn-map-svg" viewBox="0 0 100 120">
+              <polygon points="50,5 75,30 85,60 65,105 40,115 30,85 20,50 35,20" fill="#0284c7" stroke="#38bdf8" stroke-width="2"/>
+              <polygon points="50,5 65,25 45,35" fill="#f59e0b"/>
+              <polygon points="75,30 85,60 60,55" fill="#ef4444"/>
+            </svg>
+            <div class="election-legend-list">
+              <div class="legend-row">
+                <div class="party-tag"><div class="party-dot" style="background: #0284c7;"></div>People's Progressive Front</div>
+                <strong style="color: #38bdf8;">42.6%</strong>
+              </div>
+              <div class="legend-row">
+                <div class="party-tag"><div class="party-dot" style="background: #f59e0b;"></div>Unity Democratic Party</div>
+                <strong style="color: var(--gold-light);">32.1%</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 5: PROFILE & REPUTATION -->
+  <div class="screen-view" id="screen-profile">
+    <div style="width: 100%; max-width: 1280px; margin: 0 auto;">
+      <h2 class="screen-header-title">👤 Political Profile & Reputation</h2>
+      <div class="grid-dashboard">
+        <div class="dash-card">
+          <div class="card-top-title"><span>5 Dimensions</span><span>Arun (Level 3)</span></div>
+          <div class="rep-bar-row">
+            <div class="rep-bar-label-line"><span style="color: #38bdf8;">Public Trust</span><span id="rep-val-trust">72%</span></div>
+            <div class="rep-track"><div class="rep-fill" id="rep-bar-trust" style="width: 72%; background: #38bdf8;"></div></div>
+          </div>
+          <div class="rep-bar-row">
+            <div class="rep-bar-label-line"><span style="color: #10b981;">Integrity</span><span>68%</span></div>
+            <div class="rep-track"><div class="rep-fill" style="width: 68%; background: #10b981;"></div></div>
+          </div>
+          <div class="rep-bar-row">
+            <div class="rep-bar-label-line"><span style="color: #8b5cf6;">Leadership</span><span>60%</span></div>
+            <div class="rep-track"><div class="rep-fill" style="width: 60%; background: #8b5cf6;"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 6: SETTINGS -->
+  <div class="screen-view" id="screen-settings">
+    <div style="width: 100%; max-width: 680px; margin: 0 auto;">
+      <h2 class="screen-header-title">⚙️ Game Settings & Performance</h2>
+      <div class="dash-card">
+        <p style="font-size: 13px; color: var(--text-muted);">Settings configured for Android High-Fidelity & 60 FPS.</p>
+        <button class="btn-action-trigger" onclick="switchScreen('screen-main-menu')">Back to Menu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MASTER NAVIGATION DOCK -->
+  <div id="global-dock">
+    <button class="dock-btn active" id="dock-btn-main" onclick="switchScreen('screen-main-menu')">🏠 Main Menu</button>
+    <button class="dock-btn" id="dock-btn-game" onclick="start3DWorld()">🎮 3D Game (Level 1)</button>
+    <button class="dock-btn" onclick="switchScreen('screen-campaign')">📢 Campaign</button>
+    <button class="dock-btn" onclick="switchScreen('screen-election')">🗳️ Election 2027</button>
+    <button class="dock-btn" onclick="switchScreen('screen-profile')">📊 Reputation</button>
+    <button class="dock-btn" onclick="switchScreen('screen-settings')">⚙️ Settings</button>
+  </div>
+
+  <script>
+    // --- 1. Sound Synthesizer ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playBeep(freq = 440, type = 'sine', duration = 0.1) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    }
+
+    // --- 2. Level 1 Game State & Tasks ---
+    let currentTask = 1; // 1: Karuppasamy, 2: Water Tanker, 3: Drive Ambassador Car, 4: Rally Stage
+    let isDriving = false;
+    let carSpeed = 0;
+    let cash = 245000;
+    let trust = 72;
+
+    const taskTitles = [
+      "",
+      "Task 1: Meet Ward Member Karuppasamy at the local office",
+      "Task 2: Intercept the illegal Water Tanker truck",
+      "Task 3: Enter the White Ambassador Car to mobilize voters",
+      "Task 4: Address the Mega Rally and win Ward 12 Election!"
+    ];
+
+    function updateTaskHUD() {
+      document.getElementById('mission-goal-text').innerText = taskTitles[currentTask];
+      document.getElementById('hud-cash-val').innerText = `₹ ${cash.toLocaleString('en-IN')}`;
+      document.getElementById('rep-val-trust').innerText = `${trust}%`;
+      document.getElementById('rep-bar-trust').style.width = `${trust}%`;
+    }
+
+    // --- 3. Screen Switching ---
+    function switchScreen(screenId) {
+      document.querySelectorAll('.screen-view').forEach(s => s.classList.remove('active'));
+      const target = document.getElementById(screenId);
+      if (target) target.classList.add('active');
+      document.getElementById('hud-overlay').style.display = 'none';
+
+      document.querySelectorAll('.dock-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(screenId));
+      });
+    }
+
+    function start3DWorld() {
+      document.querySelectorAll('.screen-view').forEach(s => s.classList.remove('active'));
+      document.getElementById('hud-overlay').style.display = 'flex';
+      document.querySelectorAll('.dock-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById('dock-btn-game').classList.add('active');
+      playBeep(520, 'sine', 0.15);
+    }
+
+    document.getElementById('btn-continue-game').addEventListener('click', start3DWorld);
+    document.getElementById('btn-open-campaign').addEventListener('click', () => switchScreen('screen-campaign'));
+    document.getElementById('btn-open-election').addEventListener('click', () => switchScreen('screen-election'));
+    document.getElementById('btn-open-char').addEventListener('click', () => switchScreen('screen-profile'));
+    document.getElementById('btn-open-settings').addEventListener('click', () => switchScreen('screen-settings'));
+
+    // --- 4. Three.js 3D Open World Setup ---
+    const container = document.getElementById('canvas-container');
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xdbeafe);
+    scene.fog = new THREE.FogExp2(0xdbeafe, 0.012);
+
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    container.appendChild(renderer.domElement);
+
+    const hemiLight = new THREE.HemisphereLight(0xffedd5, 0x64748b, 0.85);
+    scene.add(hemiLight);
+
+    const dirLight = new THREE.DirectionalLight(0xfef08a, 1.3);
+    dirLight.position.set(50, 70, 40);
+    dirLight.castShadow = true;
+    scene.add(dirLight);
+
+    // Street Ground
+    const road = new THREE.Mesh(
+      new THREE.PlaneGeometry(240, 240),
+      new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.85 })
+    );
+    road.rotation.x = -Math.PI / 2;
+    road.receiveShadow = true;
+    scene.add(road);
+
+    // Street Markings
+    for (let i = -100; i < 100; i += 10) {
+      const line = new THREE.Mesh(new THREE.PlaneGeometry(0.4, 5), new THREE.MeshBasicMaterial({ color: 0xf8fafc }));
+      line.rotation.x = -Math.PI / 2;
+      line.position.set(0, 0.02, i);
+      scene.add(line);
+    }
+
+    // Street Buildings
+    const tints = [0xfde68a, 0xfbcfe8, 0xbfdbfe, 0xbbf7d0, 0xfecaca];
+    for (let z = -90; z <= 90; z += 22) {
+      const b1 = new THREE.Mesh(new THREE.BoxGeometry(12, 8 + Math.random() * 5, 14), new THREE.MeshStandardMaterial({ color: tints[Math.floor(Math.random() * tints.length)] }));
+      b1.position.set(-18, b1.geometry.parameters.height / 2, z);
+      scene.add(b1);
+
+      const b2 = new THREE.Mesh(new THREE.BoxGeometry(12, 8 + Math.random() * 5, 14), new THREE.MeshStandardMaterial({ color: tints[Math.floor(Math.random() * tints.length)] }));
+      b2.position.set(18, b2.geometry.parameters.height / 2, z);
+      scene.add(b2);
+    }
+
+    // --- Task 1 Prop: Ward Office & Karuppasamy NPC (At Z = -5) ---
+    const officeGroup = new THREE.Group();
+    const officeBuilding = new THREE.Mesh(new THREE.BoxGeometry(10, 5, 8), new THREE.MeshStandardMaterial({ color: 0x0284c7 }));
+    officeBuilding.position.set(14, 2.5, -5);
+    officeGroup.add(officeBuilding);
+
+    // Ward Member Karuppasamy NPC
+    const karuppasamy = new THREE.Group();
+    const npcBody = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.45, 1.7), new THREE.MeshStandardMaterial({ color: 0xd97706 }));
+    npcBody.position.y = 0.85;
+    karuppasamy.add(npcBody);
+    const npcHead = new THREE.Mesh(new THREE.SphereGeometry(0.28, 16, 16), new THREE.MeshStandardMaterial({ color: 0x78350f }));
+    npcHead.position.y = 1.85;
+    karuppasamy.add(npcHead);
+    karuppasamy.position.set(7, 0, -5);
+    scene.add(karuppasamy);
+
+    // --- Task 2 Prop: Water Tanker Truck (At Z = -28) ---
+    const tankerGroup = new THREE.Group();
+    const tankCylinder = new THREE.Mesh(new THREE.CylinderGeometry(1.4, 1.4, 6, 24), new THREE.MeshStandardMaterial({ color: 0x0284c7, metalness: 0.4, roughness: 0.3 }));
+    tankCylinder.rotation.x = Math.PI / 2;
+    tankCylinder.position.set(-6, 2.2, -28);
+    tankerGroup.add(tankCylinder);
+
+    const truckCabin = new THREE.Mesh(new THREE.BoxGeometry(2.6, 2.5, 2.6), new THREE.MeshStandardMaterial({ color: 0xf59e0b }));
+    truckCabin.position.set(-6, 1.8, -32);
+    tankerGroup.add(truckCabin);
+    scene.add(tankerGroup);
+
+    // --- Task 3 Prop: Ambassador VIP Car (At Z = -45) ---
+    const carGroup = new THREE.Group();
+    const carBody = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.2, 4.6), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.2 }));
+    carBody.position.y = 0.8;
+    carGroup.add(carBody);
+
+    const beacon = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.25), new THREE.MeshBasicMaterial({ color: 0xef4444 }));
+    beacon.position.set(0, 1.8, -0.2);
+    carGroup.add(beacon);
+
+    carGroup.position.set(4, 0, -45);
+    scene.add(carGroup);
+
+    // --- Task 4 Prop: Campaign Mega Rally Stage (At Z = -75) ---
+    const rallyStage = new THREE.Mesh(new THREE.BoxGeometry(16, 1.6, 10), new THREE.MeshStandardMaterial({ color: 0xb91c1c }));
+    rallyStage.position.set(0, 0.8, -75);
+    scene.add(rallyStage);
+
+    // --- Player Model (Arun) ---
+    const playerGroup = new THREE.Group();
+    const playerBody = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.45, 1.7), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5 }));
+    playerBody.position.y = 0.85;
+    playerGroup.add(playerBody);
+    const playerHead = new THREE.Mesh(new THREE.SphereGeometry(0.28, 16, 16), new THREE.MeshStandardMaterial({ color: 0xb45309 }));
+    playerHead.position.y = 1.85;
+    playerGroup.add(playerHead);
+
+    playerGroup.position.set(0, 0, 10);
+    scene.add(playerGroup);
+
+    // --- 5. Controls & Interaction Handler ---
+    const keys = {};
+    window.addEventListener('keydown', e => {
+      keys[e.key.toLowerCase()] = true;
+      if (e.key.toLowerCase() === 'e') handleInteraction();
+      if (e.key.toLowerCase() === 'f') toggleCarDrive();
+    });
+    window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+
+    // Joystick Touch Controls
+    let joystickVec = { x: 0, y: 0 };
+    const joyZone = document.getElementById('joystick-zone');
+    const joyKnob = document.getElementById('joystick-knob');
+    let joyActive = false;
+    let joyCenter = { x: 0, y: 0 };
+
+    joyZone.addEventListener('pointerdown', (e) => {
+      joyActive = true;
+      const rect = joyZone.getBoundingClientRect();
+      joyCenter = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+      moveKnob(e.clientX, e.clientY);
+    });
+
+    window.addEventListener('pointermove', (e) => {
+      if (!joyActive) return;
+      moveKnob(e.clientX, e.clientY);
+    });
+
+    window.addEventListener('pointerup', () => {
+      if (!joyActive) return;
+      joyActive = false;
+      joyKnob.style.transform = `translate(-50%, -50%)`;
+      joystickVec = { x: 0, y: 0 };
+    });
+
+    function moveKnob(clientX, clientY) {
+      const dx = clientX - joyCenter.x;
+      const dy = clientY - joyCenter.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const maxR = 40;
+      const clampedDist = Math.min(dist, maxR);
+      const angle = Math.atan2(dy, dx);
+      const kx = Math.cos(angle) * clampedDist;
+      const ky = Math.sin(angle) * clampedDist;
+
+      joyKnob.style.transform = `translate(calc(-50% + ${kx}px), calc(-50% + ${ky}px))`;
+      joystickVec.x = kx / maxR;
+      joystickVec.y = -ky / maxR;
+    }
+
+    // Sprint toggle
+    let isSprinting = false;
+    document.getElementById('act-sprint').addEventListener('pointerdown', () => isSprinting = true);
+    document.getElementById('act-sprint').addEventListener('pointerup', () => isSprinting = false);
+
+    // Click to advance or quick-teleport/guide towards task
+    function handleCurrentTask() {
+      if (currentTask === 1) {
+        playerGroup.position.set(5, 0, -3);
+        handleInteraction();
+      } else if (currentTask === 2) {
+        playerGroup.position.set(-4, 0, -26);
+        handleInteraction();
+      } else if (currentTask === 3) {
+        playerGroup.position.set(4, 0, -42);
+        toggleCarDrive();
+      } else if (currentTask === 4) {
+        playerGroup.position.set(0, 0, -70);
+        handleInteraction();
+      }
+    }
+
+    function checkProximity() {
+      const prompt = document.getElementById('action-prompt');
+      const blip = document.getElementById('radar-obj-blip');
+
+      if (isDriving) {
+        prompt.style.display = 'none';
+        return;
+      }
+
+      if (currentTask === 1) {
+        const d = playerGroup.position.distanceTo(karuppasamy.position);
+        blip.style.top = '40%'; blip.style.left = '65%';
+        if (d < 5.0 && document.getElementById('dialogue-modal').style.display !== 'flex') {
+          prompt.innerText = "Press [E] or Tap: Speak with Ward Member Karuppasamy";
+          prompt.style.display = 'block';
+          return;
+        }
+      } else if (currentTask === 2) {
+        const d = playerGroup.position.distanceTo(new THREE.Vector3(-6, 0, -28));
+        blip.style.top = '30%'; blip.style.left = '35%';
+        if (d < 6.0 && document.getElementById('dialogue-modal').style.display !== 'flex') {
+          prompt.innerText = "Press [E] or Tap: Intercept Illegal Tanker";
+          prompt.style.display = 'block';
+          return;
+        }
+      } else if (currentTask === 3) {
+        const d = playerGroup.position.distanceTo(carGroup.position);
+        blip.style.top = '25%'; blip.style.left = '55%';
+        if (d < 5.0) {
+          prompt.innerText = "Press [E] or Tap: Enter White Ambassador Car";
+          prompt.style.display = 'block';
+          return;
+        }
+      } else if (currentTask === 4) {
+        const d = playerGroup.position.distanceTo(new THREE.Vector3(0, 0, -75));
+        blip.style.top = '15%'; blip.style.left = '50%';
+        if (d < 7.0 && document.getElementById('dialogue-modal').style.display !== 'flex') {
+          prompt.innerText = "Press [E] or Tap: Address the Mega Rally & Win Election!";
+          prompt.style.display = 'block';
+          return;
+        }
+      }
+
+      prompt.style.display = 'none';
+    }
+
+    function handleInteraction() {
+      if (currentTask === 1) {
+        openDialogue(
+          "Ward Member Karuppasamy",
+          "Arun! Why are you stirring up the residents? The water issue is due to a main grid fault. Take this ₹50,000 community donation and calm the youth.",
+          [
+            { text: "Refuse the cash! 'We know you diverted the borewells to private tankers!' (+Trust)", act: () => advanceToTask(2, 8, 0) },
+            { text: "Accept donation for ward relief. (+₹50,000, -Integrity)", act: () => advanceToTask(2, -5, 50000) }
+          ]
+        );
+      } else if (currentTask === 2) {
+        openDialogue(
+          "Tanker Mafia Driver",
+          "Thambi, don't photograph the tanker! Counselor Karuppasamy ordered these 10 tankers for private apartment complexes.",
+          [
+            { text: "Expose the illegal valves live to press reporters! (+10% Trust)", act: () => advanceToTask(3, 10, 0) },
+            { text: "Force the tanker to redirect water to Ward 12 families immediately! (+12% Trust)", act: () => advanceToTask(3, 12, 0) }
+          ]
+        );
+      } else if (currentTask === 3) {
+        toggleCarDrive();
+      } else if (currentTask === 4) {
+        openDialogue(
+          "Mega Election Rally - Stage Coordinator",
+          "Thousands of Ward 12 residents have arrived! Are you ready to give the keynote campaign speech and contest the Bye-Election?",
+          [
+            { text: "Step on the podium and declare your election candidacy!", act: () => completeLevel1() }
+          ]
+        );
+      }
+    }
+
+    function openDialogue(speaker, text, options) {
+      playBeep(580, 'sine', 0.15);
+      const modal = document.getElementById('dialogue-modal');
+      document.getElementById('dialogue-speaker').innerText = speaker;
+      document.getElementById('dialogue-text').innerText = text;
+
+      const optsContainer = document.getElementById('dialogue-options');
+      optsContainer.innerHTML = '';
+      options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'dialogue-opt';
+        btn.innerText = opt.text;
+        btn.onclick = () => {
+          modal.style.display = 'none';
+          playBeep(720, 'triangle', 0.12);
+          opt.act();
+        };
+        optsContainer.appendChild(btn);
+      });
+      modal.style.display = 'flex';
+    }
+
+    function advanceToTask(nextTaskNum, trustDelta, cashDelta) {
+      currentTask = nextTaskNum;
+      trust = Math.min(100, Math.max(0, trust + trustDelta));
+      cash += cashDelta;
+      updateTaskHUD();
+      playBeep(880, 'triangle', 0.2);
+      document.getElementById('sys-event-msg').innerText = `${taskTitles[currentTask]}`;
+    }
+
+    function toggleCarDrive() {
+      if (isDriving) {
+        exitCar();
+      } else {
+        enterCar();
+      }
+    }
+
+    function enterCar() {
+      isDriving = true;
+      playBeep(220, 'sawtooth', 0.3);
+      playerGroup.visible = false;
+      document.getElementById('driving-hud').style.display = 'flex';
+      document.getElementById('action-prompt').style.display = 'none';
+      document.getElementById('sys-event-msg').innerText = "Driving Ambassador VIP Car. Drive North towards Rally Stage (Z = -70).";
+    }
+
+    function exitCar() {
+      isDriving = false;
+      playerGroup.visible = true;
+      playerGroup.position.set(carGroup.position.x + 2.5, 0, carGroup.position.z);
+      document.getElementById('driving-hud').style.display = 'none';
+
+      if (currentTask === 3 && carGroup.position.z < -55) {
+        advanceToTask(4, 5, 0);
+      }
+    }
+
+    function completeLevel1() {
+      playBeep(523, 'sine', 0.1);
+      setTimeout(() => playBeep(659, 'sine', 0.1), 100);
+      setTimeout(() => playBeep(784, 'triangle', 0.3), 200);
+      document.getElementById('level-complete-modal').style.display = 'flex';
+    }
+
+    function resetLevel1() {
+      document.getElementById('level-complete-modal').style.display = 'none';
+      currentTask = 1;
+      playerGroup.position.set(0, 0, 10);
+      carGroup.position.set(4, 0, -45);
+      trust = 75;
+      updateTaskHUD();
+      switchScreen('screen-main-menu');
+    }
+
+    function runCampaignAction(name, cost, trustBonus) {
+      if (cash >= cost) {
+        cash -= cost;
+        trust = Math.min(100, trust + trustBonus);
+        updateTaskHUD();
+        alert(`Action '${name}' launched! Cost: ₹${cost.toLocaleString('en-IN')}. Public trust boosted!`);
+      } else {
+        alert("⚠️ Insufficient funds for this campaign action!");
+      }
+    }
+
+    // --- 6. Main Animation Loop ---
+    const clock = new THREE.Clock();
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const delta = clock.getDelta();
+
+      let moveX = 0;
+      let moveZ = 0;
+
+      if (keys['w'] || keys['arrowup']) moveZ -= 1;
+      if (keys['s'] || keys['arrowdown']) moveZ += 1;
+      if (keys['a'] || keys['arrowleft']) moveX -= 1;
+      if (keys['d'] || keys['arrowright']) moveX += 1;
+
+      if (Math.abs(joystickVec.x) > 0.05 || Math.abs(joystickVec.y) > 0.05) {
+        moveX = joystickVec.x;
+        moveZ = -joystickVec.y;
+      }
+
+      if (isDriving) {
+        if (moveZ !== 0) {
+          carSpeed = THREE.MathUtils.lerp(carSpeed, -moveZ * 18.0, delta * 3.0);
+        } else {
+          carSpeed = THREE.MathUtils.lerp(carSpeed, 0, delta * 2.0);
+        }
+
+        if (Math.abs(carSpeed) > 0.5) {
+          carGroup.rotation.y += moveX * delta * 1.8 * (carSpeed > 0 ? 1 : -1);
+        }
+
+        const forward = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), carGroup.rotation.y);
+        carGroup.position.addScaledVector(forward, carSpeed * delta);
+
+        document.getElementById('speed-gauge').innerText = `🚗 ${Math.round(Math.abs(carSpeed) * 3.6)} KM/H`;
+
+        const targetCam = new THREE.Vector3(
+          carGroup.position.x - forward.x * 9.0,
+          carGroup.position.y + 5.0,
+          carGroup.position.z - forward.z * 9.0
+        );
+        camera.position.lerp(targetCam, 0.1);
+        camera.lookAt(carGroup.position.x, carGroup.position.y + 1.5, carGroup.position.z);
+
+        if (currentTask === 3 && carGroup.position.z < -55) {
+          advanceToTask(4, 5, 0);
+        }
+      } else {
+        const len = Math.sqrt(moveX * moveX + moveZ * moveZ);
+        if (len > 0.1) {
+          const speed = isSprinting ? 8.5 : 5.0;
+          playerGroup.position.x += (moveX / len) * speed * delta;
+          playerGroup.position.z += (moveZ / len) * speed * delta;
+          playerGroup.rotation.y = Math.atan2(moveX, moveZ);
+        }
+
+        const targetCam = new THREE.Vector3(playerGroup.position.x, playerGroup.position.y + 4.5, playerGroup.position.z + 8.5);
+        camera.position.lerp(targetCam, 0.1);
+        camera.lookAt(playerGroup.position.x, playerGroup.position.y + 1.2, playerGroup.position.z);
+      }
+
+      checkProximity();
+      renderer.render(scene, camera);
+    }
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    updateTaskHUD();
+    animate();
+  </script>
+</body>
+</html>
