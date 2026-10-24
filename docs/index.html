@@ -3778,140 +3778,183 @@
       const skinMat = new THREE.MeshStandardMaterial({ color: skinColor, roughness: 0.7 });
       const shirtMat = new THREE.MeshStandardMaterial({ color: shirtColor, roughness: 0.6 });
       const lowerMat = new THREE.MeshStandardMaterial({ color: lowerColor, roughness: 0.7 });
-      const hairMat = new THREE.MeshStandardMaterial({ color: hairColor, roughness: 0.9 });
-      const shoeMat = new THREE.MeshStandardMaterial({ color: 0x451a03, roughness: 0.8 });
+      const hairMat = new THREE.MeshStandardMaterial({ color: hairColor, roughness: 0.85 });
+      const shoeMat = new THREE.MeshStandardMaterial({ color: 0x271711, roughness: 0.8 });
 
-      // Torso / Chest
-      const torso = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.85, 0.42), shirtMat);
+      // Torso / Chest (Height: 0.80, Center: 1.35)
+      const torso = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.80, 0.40), shirtMat);
       torso.position.y = 1.35;
       torso.castShadow = true;
       rig.add(torso);
 
-      // Neck & Head
+      // Pelvis / Hips (Grounds torso to legs)
+      const pelvis = new THREE.Mesh(new THREE.BoxGeometry(0.70, 0.24, 0.38), lowerMat);
+      pelvis.position.y = 0.93;
+      pelvis.castShadow = true;
+      rig.add(pelvis);
+
+      // Shirt Collar
+      const collar = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.18, 0.22, 0.08, 12),
+        shirtMat
+      );
+      collar.position.set(0, 0.42, 0);
+      torso.add(collar);
+
+      // Neck & Head (Anatomically anchored to top of collar)
       const headGroup = new THREE.Group();
-      const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.14, 0.22, 10), skinMat);
-      neck.position.y = 0.48;
+      
+      const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.13, 0.18, 10), skinMat);
+      neck.position.y = 0.09;
       headGroup.add(neck);
 
-      const head = new THREE.Mesh(new THREE.SphereGeometry(0.25, 16, 16), skinMat);
-      head.position.y = 0.75;
+      const head = new THREE.Mesh(new THREE.SphereGeometry(0.24, 16, 16), skinMat);
+      head.position.y = 0.28;
       head.scale.set(1.0, 1.15, 1.05);
       headGroup.add(head);
 
-      // Hair
-      const hair = new THREE.Mesh(new THREE.SphereGeometry(0.26, 16, 16, 0, Math.PI * 2, 0, Math.PI / 1.7), hairMat);
-      hair.position.set(0, 0.82, -0.02);
+      // Ears
+      [-0.24, 0.24].forEach(earX => {
+        const ear = new THREE.Mesh(new THREE.SphereGeometry(0.055, 8, 8), skinMat);
+        ear.scale.set(0.6, 1.2, 0.8);
+        ear.position.set(earX, 0.28, 0.02);
+        headGroup.add(ear);
+      });
+
+      // Layered Hair
+      const hair = new THREE.Mesh(new THREE.SphereGeometry(0.255, 16, 16, 0, Math.PI * 2, 0, Math.PI / 1.7), hairMat);
+      hair.position.set(0, 0.33, -0.02);
       headGroup.add(hair);
 
-      // Jasmine Flowers in Hair (Malli Poo / Gajra)
+      const hairSides = new THREE.Mesh(new THREE.BoxGeometry(0.50, 0.22, 0.42), hairMat);
+      hairSides.position.set(0, 0.32, -0.06);
+      headGroup.add(hairSides);
+
+      // Jasmine Flowers in Hair (Malli Poo)
       if (hasFlowers) {
         const flowerMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 });
-        const garland = new THREE.Mesh(new THREE.TorusGeometry(0.18, 0.05, 8, 16), flowerMat);
-        garland.position.set(0, 0.82, -0.18);
+        const garland = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.045, 8, 16), flowerMat);
+        garland.position.set(0, 0.32, -0.16);
         headGroup.add(garland);
       }
 
-      // Mustache & Beard
+      // Facial Features (Mustache & Beard)
       if (hasMustache) {
-        const mustache = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.04, 0.06), hairMat);
-        mustache.position.set(0, 0.68, 0.25);
+        const mustache = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.04, 0.06), hairMat);
+        mustache.position.set(0, 0.22, 0.24);
         headGroup.add(mustache);
       }
       if (hasBeard) {
-        const beard = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.12, 0.15), hairMat);
-        beard.position.set(0, 0.58, 0.18);
+        const beard = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.12, 0.16), hairMat);
+        beard.position.set(0, 0.14, 0.17);
         headGroup.add(beard);
       }
 
-      // Eyeglasses / Goggles
+      // Eyeglasses
       if (hasGoggles) {
         const specMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.9, roughness: 0.1 });
         const spec = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.08, 0.08), specMat);
-        spec.position.set(0, 0.76, 0.25);
+        spec.position.set(0, 0.30, 0.24);
         headGroup.add(spec);
       }
 
-      // Cap (Baseball / Police Peaked Cap)
+      // Cap
       if (hasCap) {
         const capMat = new THREE.MeshStandardMaterial({ color: capColor, roughness: 0.5 });
-        const capCrown = new THREE.Mesh(new THREE.CylinderGeometry(0.27, 0.28, 0.14, 16), capMat);
-        capCrown.position.set(0, 0.95, -0.02);
+        const capCrown = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.27, 0.14, 16), capMat);
+        capCrown.position.set(0, 0.46, -0.02);
         headGroup.add(capCrown);
         const capVisor = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.2), capMat);
         capVisor.rotation.x = -Math.PI / 6;
-        capVisor.position.set(0, 0.92, 0.22);
+        capVisor.position.set(0, 0.43, 0.22);
         headGroup.add(capVisor);
       }
 
-      headGroup.position.set(0, 0.42, 0);
+      headGroup.position.set(0, 0.40, 0);
       torso.add(headGroup);
 
-      // TASTEFUL INDIAN TRICOLOR SCARF FOR POLITICIAN ARUN (MATCHING REFERENCE IMAGE)
+      // AUTHENTIC INDIAN TRICOLOR SCARF FOR POLITICIAN ARUN (MATCHING REFERENCE IMAGE)
       if (isTricolorScarf) {
         const saffronMat = new THREE.MeshStandardMaterial({ color: 0xff9933, roughness: 0.5 });
         const whiteScarfMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5 });
         const greenScarfMat = new THREE.MeshStandardMaterial({ color: 0x138808, roughness: 0.5 });
+        const goldFringeMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.8, roughness: 0.3 });
 
-        // Left draping sash
-        const scarfL1 = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.95, 0.45), saffronMat);
-        scarfL1.position.set(-0.25, -0.02, 0.02);
-        torso.add(scarfL1);
+        // Scarf Loop behind neck
+        const neckLoop = new THREE.Mesh(
+          new THREE.TorusGeometry(0.24, 0.065, 8, 16, Math.PI),
+          saffronMat
+        );
+        neckLoop.rotation.x = -Math.PI / 2;
+        neckLoop.position.set(0, 0.42, -0.06);
+        torso.add(neckLoop);
 
-        const scarfL2 = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.95, 0.45), whiteScarfMat);
-        scarfL2.position.set(-0.17, -0.02, 0.02);
-        torso.add(scarfL2);
+        // Left draping angavastram
+        const leftGroup = new THREE.Group();
+        const sL1 = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.90, 0.03), saffronMat);
+        sL1.position.x = -0.06;
+        const sL2 = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.90, 0.03), whiteScarfMat);
+        const sL3 = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.90, 0.03), greenScarfMat);
+        sL3.position.x = 0.06;
+        leftGroup.add(sL1, sL2, sL3);
 
-        const scarfL3 = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.95, 0.45), greenScarfMat);
-        scarfL3.position.set(-0.09, -0.02, 0.02);
-        torso.add(scarfL3);
+        const tasselL = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.08, 0.04), goldFringeMat);
+        tasselL.position.y = -0.47;
+        leftGroup.add(tasselL);
 
-        // Right draping sash
-        const scarfR1 = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.95, 0.45), greenScarfMat);
-        scarfR1.position.set(0.09, -0.02, 0.02);
-        torso.add(scarfR1);
+        leftGroup.position.set(-0.20, -0.02, 0.21);
+        torso.add(leftGroup);
 
-        const scarfR2 = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.95, 0.45), whiteScarfMat);
-        scarfR2.position.set(0.17, -0.02, 0.02);
-        torso.add(scarfR2);
+        // Right draping angavastram
+        const rightGroup = new THREE.Group();
+        const sR1 = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.90, 0.03), greenScarfMat);
+        sR1.position.x = -0.06;
+        const sR2 = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.90, 0.03), whiteScarfMat);
+        const sR3 = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.90, 0.03), saffronMat);
+        sR3.position.x = 0.06;
+        rightGroup.add(sR1, sR2, sR3);
 
-        const scarfR3 = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.95, 0.45), saffronMat);
-        scarfR3.position.set(0.25, -0.02, 0.02);
-        torso.add(scarfR3);
+        const tasselR = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.08, 0.04), goldFringeMat);
+        tasselR.position.y = -0.47;
+        rightGroup.add(tasselR);
+
+        rightGroup.position.set(0.20, -0.02, 0.21);
+        torso.add(rightGroup);
+
       } else if (hasSash) {
         const sashMat = new THREE.MeshStandardMaterial({ color: sashColor, roughness: 0.5 });
-        const sash = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.95, 0.46), sashMat);
-        sash.position.set(-0.25, 0.0, 0.0);
+        const sash = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.95, 0.44), sashMat);
+        sash.position.set(-0.22, 0.0, 0.0);
         torso.add(sash);
       }
 
-      // Dupatta drape for female campaign worker
+      // Dupatta drape
       if (hasDupatta) {
         const dupMat = new THREE.MeshStandardMaterial({ color: dupattaColor, roughness: 0.6 });
-        const dup = new THREE.Mesh(new THREE.BoxGeometry(0.28, 1.0, 0.46), dupMat);
+        const dup = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.95, 0.44), dupMat);
         dup.position.set(-0.18, -0.02, 0.01);
         torso.add(dup);
       }
 
-      // Saree Pallu drape with gold zari border
+      // Saree Pallu drape
       if (isSaree) {
         const palluMat = new THREE.MeshStandardMaterial({ color: palluColor, roughness: 0.6 });
-        const pallu = new THREE.Mesh(new THREE.BoxGeometry(0.32, 1.05, 0.48), palluMat);
+        const pallu = new THREE.Mesh(new THREE.BoxGeometry(0.30, 1.0, 0.44), palluMat);
         pallu.position.set(0.18, 0.0, 0.02);
         torso.add(pallu);
 
-        // Gold border
         const goldBorder = new THREE.Mesh(
-          new THREE.BoxGeometry(0.05, 1.06, 0.49),
+          new THREE.BoxGeometry(0.05, 1.02, 0.45),
           new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.8, roughness: 0.3 })
         );
-        goldBorder.position.set(0.32, 0.0, 0.02);
+        goldBorder.position.set(0.31, 0.0, 0.02);
         torso.add(goldBorder);
       }
 
       // Shopkeeper Apron
       if (hasApron) {
         const apronMat = new THREE.MeshStandardMaterial({ color: 0x1e3a8a, roughness: 0.7 });
-        const apron = new THREE.Mesh(new THREE.BoxGeometry(0.68, 0.8, 0.44), apronMat);
+        const apron = new THREE.Mesh(new THREE.BoxGeometry(0.68, 0.75, 0.42), apronMat);
         apron.position.set(0, -0.1, 0.02);
         torso.add(apron);
       }
@@ -3919,19 +3962,19 @@
       // Student Backpack
       if (hasBackpack) {
         const packMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.8 });
-        const pack = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.7, 0.3), packMat);
-        pack.position.set(0, 0.05, -0.32);
+        const pack = new THREE.Mesh(new THREE.BoxGeometry(0.56, 0.65, 0.28), packMat);
+        pack.position.set(0, 0.05, -0.30);
         torso.add(pack);
       }
 
       // Police Duty Belt & Holster
       if (hasKhakiPolice) {
         const beltMat = new THREE.MeshStandardMaterial({ color: 0x3e2723, roughness: 0.4 });
-        const belt = new THREE.Mesh(new THREE.BoxGeometry(0.74, 0.14, 0.44), beltMat);
+        const belt = new THREE.Mesh(new THREE.BoxGeometry(0.74, 0.14, 0.42), beltMat);
         belt.position.set(0, -0.38, 0);
         torso.add(belt);
 
-        const holster = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.28, 0.16), beltMat);
+        const holster = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.26, 0.14), beltMat);
         holster.position.set(0.38, -0.45, 0);
         torso.add(holster);
       }
@@ -3939,33 +3982,38 @@
       // Arms & Hands Rigging
       function makeArm(isRight) {
         const armGroup = new THREE.Group();
-        const upper = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.09, 0.48, 10), shirtMat);
+        const upper = new THREE.Mesh(new THREE.CylinderGeometry(0.10, 0.09, 0.45, 10), shirtMat);
         upper.position.y = -0.22;
         armGroup.add(upper);
 
         const forearmGroup = new THREE.Group();
-        const forearm = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.08, 0.45, 10), skinMat);
-        forearm.position.y = -0.22;
-        forearmGroup.add(forearm);
+        // Kurta sleeve covers upper half of forearm
+        const forearmCloth = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.085, 0.25, 10), shirtMat);
+        forearmCloth.position.y = -0.125;
+        forearmGroup.add(forearmCloth);
 
-        const hand = new THREE.Mesh(new THREE.SphereGeometry(0.09, 8, 8), skinMat);
-        hand.position.y = -0.45;
+        const forearmSkin = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.075, 0.20, 10), skinMat);
+        forearmSkin.position.y = -0.32;
+        forearmGroup.add(forearmSkin);
+
+        const hand = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 8), skinMat);
+        hand.position.y = -0.44;
         forearmGroup.add(hand);
 
-        // Wristwatch on left wrist for Politician Arun
+        // Wristwatch on left wrist for Arun
         if (!isRight && isTricolorScarf) {
           const watch = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.095, 0.095, 0.06, 12),
+            new THREE.CylinderGeometry(0.09, 0.09, 0.05, 12),
             new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.9, roughness: 0.2 })
           );
           watch.position.y = -0.38;
           forearmGroup.add(watch);
         }
 
-        forearmGroup.position.y = -0.45;
+        forearmGroup.position.y = -0.42;
         armGroup.add(forearmGroup);
 
-        armGroup.position.set(isRight ? 0.48 : -0.48, 0.35, 0);
+        armGroup.position.set(isRight ? 0.46 : -0.46, 0.32, 0);
         torso.add(armGroup);
         return { armGroup, forearmGroup, hand };
       }
@@ -3976,24 +4024,25 @@
       // Pelvis & Legs Rigging
       function makeLeg(isRight) {
         const legGroup = new THREE.Group();
-        const thigh = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.13, 0.55, 10), lowerMat);
+        const thigh = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.12, 0.52, 10), lowerMat);
         thigh.position.y = -0.26;
         thigh.castShadow = true;
         legGroup.add(thigh);
 
         const calfGroup = new THREE.Group();
-        const calf = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.11, 0.52, 10), lowerMat);
+        const calf = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.10, 0.50, 10), lowerMat);
         calf.position.y = -0.24;
         calfGroup.add(calf);
 
-        const foot = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.1, 0.32), shoeMat);
-        foot.position.set(0, -0.5, 0.08);
+        // Leather Chappal / Shoe
+        const foot = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.09, 0.30), shoeMat);
+        foot.position.set(0, -0.48, 0.07);
         calfGroup.add(foot);
 
-        calfGroup.position.y = -0.52;
+        calfGroup.position.y = -0.50;
         legGroup.add(calfGroup);
 
-        legGroup.position.set(isRight ? 0.2 : -0.2, 0.95, 0);
+        legGroup.position.set(isRight ? 0.19 : -0.19, 0.90, 0);
         rig.add(legGroup);
         return { legGroup, calfGroup, foot };
       }
@@ -4003,36 +4052,35 @@
 
       // Handheld Props
       if (hasDSLR) {
-        // DSLR Camera with zoom lens
         const camBody = new THREE.Mesh(
           new THREE.BoxGeometry(0.24, 0.18, 0.18),
           new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.4 })
         );
-        camBody.position.set(0, -0.55, 0.12);
+        camBody.position.set(0, -0.52, 0.12);
         const lens = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.08, 0.09, 0.25, 12),
+          new THREE.CylinderGeometry(0.08, 0.09, 0.22, 12),
           new THREE.MeshStandardMaterial({ color: 0x1f2937, metalness: 0.8 })
         );
         lens.rotation.x = Math.PI / 2;
-        lens.position.set(0, 0, 0.18);
+        lens.position.set(0, 0, 0.16);
         camBody.add(lens);
         rightArm.forearmGroup.add(camBody);
       }
 
       if (hasCane) {
         const cane = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.02, 0.025, 1.05, 8),
+          new THREE.CylinderGeometry(0.02, 0.025, 1.0, 8),
           new THREE.MeshStandardMaterial({ color: 0x451a03, roughness: 0.8 })
         );
-        cane.position.set(0.1, -0.55, 0.1);
+        cane.position.set(0.1, -0.50, 0.1);
         rightArm.forearmGroup.add(cane);
       }
 
       if (hasPot) {
         const potMat = new THREE.MeshStandardMaterial({ color: potColor, roughness: 0.4 });
-        const potBottom = new THREE.Mesh(new THREE.SphereGeometry(0.24, 12, 12), potMat);
+        const potBottom = new THREE.Mesh(new THREE.SphereGeometry(0.22, 12, 12), potMat);
         potBottom.scale.set(1.0, 0.85, 1.0);
-        potBottom.position.set(0.25, -0.4, 0.1);
+        potBottom.position.set(0.25, -0.38, 0.1);
         rightArm.forearmGroup.add(potBottom);
       }
 
@@ -4762,8 +4810,8 @@
         }
 
         // Camera Follows Arun Smoothly
-        const camDist = 5.2;
-        const camHeight = 2.4;
+        const camDist = 6.2;
+        const camHeight = 2.8;
         const cx = playerGroup.position.x + Math.sin(camYaw) * (camDist * Math.cos(camPitch));
         const cy = playerGroup.position.y + camHeight + Math.sin(camPitch) * camDist;
         const cz = playerGroup.position.z + Math.cos(camYaw) * (camDist * Math.cos(camPitch));
