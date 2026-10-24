@@ -2589,11 +2589,50 @@ def get_engine_code():
       }
     }
 
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
+    // Landscape Mode Request & Fullscreen API
+    window.requestLandscapeOrientation = function() {
+      const docEl = document.documentElement;
+      const rfs = docEl.requestFullscreen || docEl.webkitRequestFullscreen || docEl.mozRequestFullScreen || docEl.msRequestFullscreen;
+      if (rfs) {
+        try {
+          rfs.call(docEl).then(() => {
+            if (screen.orientation && screen.orientation.lock) {
+              screen.orientation.lock('landscape').catch(() => {});
+            }
+          }).catch(() => {});
+        } catch (err) {}
+      }
+      const overlay = document.getElementById('rotate-device-overlay');
+      if (overlay && window.innerWidth > window.innerHeight) {
+        overlay.style.display = 'none';
+      }
+    };
+
+    function checkOrientationChange() {
+      const overlay = document.getElementById('rotate-device-overlay');
+      const isPortrait = window.innerHeight > window.innerWidth && window.innerWidth <= 1024;
+      if (overlay) {
+        if (isPortrait) {
+          overlay.style.display = 'flex';
+        } else {
+          overlay.style.display = 'none';
+        }
+      }
+      if (camera && renderer) {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      }
+    }
+
+    window.addEventListener('resize', checkOrientationChange);
+    window.addEventListener('orientationchange', () => {
+      setTimeout(checkOrientationChange, 200);
+      setTimeout(checkOrientationChange, 600);
     });
+
+    checkOrientationChange();
 
     updateTaskHUD();
     applyGraphicsPreset('medium');
